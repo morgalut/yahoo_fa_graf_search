@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import SearchBar from './components/SearchBar';
 import StockInfo from './components/StockInfo';
-import StockGraph from './components/StockGraph';
+import StockGraph from './components/Graph/StockGraph';
+import './App.css';
 
 const App = () => {
     const [stockData, setStockData] = useState(null);
