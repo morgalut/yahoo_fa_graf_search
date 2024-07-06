@@ -9,7 +9,7 @@ const OldGraph = () => {
 
   const fetchData = async () => {
     try {
-      const symbol = 'AAPL'; // Replace with your symbol or fetch dynamically
+      const symbol = 'AMGN'; // Replace with your symbol or fetch dynamically
       const response = await axios.get(`http://localhost:5000/api/graph/${symbol}`);
       setData(response.data);
     } catch (error) {

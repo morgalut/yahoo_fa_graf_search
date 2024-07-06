@@ -1,4 +1,11 @@
-# C:\Users\Mor\Desktop\fina\Stocke_poke\backend\sp500_scraper.py
+# C:\Users\Mor\Desktop\fina\Stocke_poke\backend\file_scraper\sp500_scraper.py
+"""
+Module for scraping S&P 500 stock symbols from Wikipedia.
+
+This module defines a function fetch_sp500_stocks() that scrapes the S&P 500 stock symbols
+from a Wikipedia page and returns them as a list of dictionaries.
+"""
+
 import pandas as pd
 
 def fetch_sp500_stocks():
@@ -10,5 +17,3 @@ def fetch_sp500_stocks():
     sp500_df = sp500_table[0]
     sp500_stocks = sp500_df[['Symbol', 'Security']].to_dict(orient='records')
     return sp500_stocks
-
-

@@ -1,4 +1,10 @@
-# C:\Users\Mor\Desktop\fina\Stocke_poke\backend\app.py
+"""
+Flask application entry point.
+
+This module initializes a Flask application and registers various blueprints for handling
+different API endpoints related to stocks, suggestions, graphs, and other RESTful routes.
+"""
+
 from flask import Flask
 from flask_cors import CORS
 from models.stock_model import fetch_all_stock_symbols
