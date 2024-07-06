@@ -13,7 +13,11 @@ def get_stock_data_graph(symbol):
         
         processed_data = {
             'Date': data.index.strftime('%Y-%m-%d').tolist(),
-            'Close': data['Close'].tolist()
+            'Close': data['Close'].tolist(),
+            'Open': data['Open'].tolist(),
+            'High': data['High'].tolist(),
+            'Low': data['Low'].tolist(),
+            'Volume': data['Volume'].tolist()
         }
         
         return jsonify(processed_data)
