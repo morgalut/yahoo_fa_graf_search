@@ -1,4 +1,4 @@
-// C:\Users\Mor\Desktop\fina\Stocke_poke\stock-dashboard\src\components\NewGraph.js
+// C:\Users\Mor\Desktop\fina\Stocke_poke\stock-dashboard\src\components\Graph\NewGraph.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
