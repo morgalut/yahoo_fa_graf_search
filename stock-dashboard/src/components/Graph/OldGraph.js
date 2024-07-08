@@ -1,28 +1,30 @@
-// C:\Users\Mor\Desktop\fina\Stocke_poke\stock-dashboard\src\components\Graph\OldGraph.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import './ResizableContainer.css';
 
 const OldGraph = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [showDiff, setShowDiff] = useState(false);
+  const [width, setWidth] = useState(600);
+  const [height, setHeight] = useState(300);
+  const [symbol, setSymbol] = useState('AMGN'); // Default symbol
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const symbol = 'AMGN'; // Replace with your symbol or fetch dynamically
       const response = await axios.get(`http://localhost:5000/api/graph/${symbol}`);
       setData(response.data);
     } catch (error) {
       setError(error.message);
     }
-  };
+  }, [symbol]);
 
   useEffect(() => {
-    fetchData(); // Fetch data on component mount
-
-    const interval = setInterval(fetchData, 60000); // Fetch data every minute
+    fetchData(); // Initial fetch
+    const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchData]);
 
   if (error) {
     return <div>Error fetching data: {error}</div>;
@@ -33,21 +35,20 @@ const OldGraph = () => {
       return <div>Loading...</div>;
     }
 
-    // Transform the data into a format that recharts can understand
     const chartData = data.Date.map((date, index) => ({
       Date: date,
-      Open: data.Open[index],
-      Close: data.Close[index],
-      High: data.High[index],
-      Low: data.Low[index],
-      Volume: data.Volume[index]
+      Open: showDiff ? data.OpenDiff[index] : data.Open[index],
+      Close: showDiff ? data.CloseDiff[index] : data.Close[index],
+      High: showDiff ? data.HighDiff[index] : data.High[index],
+      Low: showDiff ? data.LowDiff[index] : data.Low[index],
+      Volume: showDiff ? data.VolumeDiff[index] : data.Volume[index]
     }));
 
     const formatDollar = (value) => `$${value.toFixed(2)}`;
 
     return (
       <div>
-        <LineChart width={600} height={300} data={chartData}>
+        <LineChart width={width} height={height} data={chartData}>
           <XAxis dataKey="Date" />
           <YAxis tickFormatter={formatDollar} />
           <Tooltip formatter={(value) => formatDollar(value)} />
@@ -65,7 +66,44 @@ const OldGraph = () => {
   return (
     <div>
       <h2>Old Stock Graph</h2>
-      {renderGraph()}
+      <div>
+        <label>Select Stock Symbol:</label>
+        <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
+              <option value="AMGN">AMGN</option>
+              <option value="AAPL">AAPL</option>
+              <option value="GOOGL">GOOGL</option>
+              <option value="MSFT">MSFT</option>
+              <option value="TSLA">TSLA</option>
+              <option value="NFLX">NFLX</option>
+              <option value="NVDA">NVDA</option>
+              {/* Add more options as needed */}
+            </select>
+
+      </div>
+      <button onClick={() => setShowDiff(!showDiff)}>
+        {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
+      </button>
+      <div className="resizable-container">
+        {renderGraph()}
+      </div>
+      <div className="controls">
+        <label>
+          Width:
+          <input
+            type="number"
+            value={width}
+            onChange={(e) => setWidth(parseInt(e.target.value, 10))}
+          />
+        </label>
+        <label>
+          Height:
+          <input
+            type="number"
+            value={height}
+            onChange={(e) => setHeight(parseInt(e.target.value, 10))}
+          />
+        </label>
+      </div>
     </div>
   );
 };

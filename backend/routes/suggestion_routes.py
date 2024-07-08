@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from ..file_scraper.stock_service import ALL_STOCKS
+from file_scraper.stock_service import ALL_STOCKS
 
 suggestion_bp = Blueprint('suggestion_bp', __name__)
 
