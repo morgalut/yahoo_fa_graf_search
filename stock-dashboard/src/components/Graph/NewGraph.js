@@ -1,7 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import './ResizableContainer.css';
+import { saveAs } from 'file-saver';
 
 const NewGraph = () => {
     const [data, setData] = useState(null);
@@ -10,15 +13,22 @@ const NewGraph = () => {
     const [width, setWidth] = useState(600);
     const [height, setHeight] = useState(300);
     const [symbol, setSymbol] = useState('AAPL'); // Default symbol
+    const [startDate, setStartDate] = useState(new Date()); // Default start date
+    const [endDate, setEndDate] = useState(new Date()); // Default end date
 
     const fetchData = useCallback(async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/graph/${symbol}`);
+            const response = await axios.get(`http://localhost:5000/api/graph/${symbol}`, {
+                params: {
+                    startDate: startDate.toISOString().split('T')[0],
+                    endDate: endDate.toISOString().split('T')[0]
+                }
+            });
             setData(response.data);
         } catch (error) {
             setError(error.message);
         }
-    }, [symbol]);
+    }, [symbol, startDate, endDate]);
 
     useEffect(() => {
         const fetchDataAndUpdate = async () => {
@@ -72,6 +82,22 @@ const NewGraph = () => {
         );
     };
 
+    const generateBIReport = async () => {
+        try {
+            const response = await axios.post(`http://localhost:5000/api/graph/report/${symbol}`, {
+                startDate: startDate.toISOString().split('T')[0],
+                endDate: endDate.toISOString().split('T')[0]
+            }, {
+                responseType: 'blob' // Ensure response is treated as a blob
+            });
+
+            const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
+            saveAs(blob, `${symbol}_BI_Report.xlsx`);
+        } catch (error) {
+            console.error('Failed to generate BI report:', error);
+        }
+    };
+
     return (
         <div>
             <div>
@@ -87,9 +113,16 @@ const NewGraph = () => {
                     {/* Add more options as needed */}
                 </select>
             </div>
+            <div>
+                <label>Start Date:</label>
+                <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} />
+                <label>End Date:</label>
+                <DatePicker selected={endDate} onChange={(date) => setEndDate(date)} />
+            </div>
             <button onClick={() => setShowDiff(!showDiff)}>
                 {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
             </button>
+            <button onClick={generateBIReport}>Generate BI Report</button>
             <div className="resizable-container">
                 {renderGraph()}
             </div>

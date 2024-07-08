@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import './ResizableContainer.css';
+import { saveAs } from 'file-saver';
 
 const OldGraph = () => {
   const [data, setData] = useState(null);
@@ -10,19 +13,32 @@ const OldGraph = () => {
   const [width, setWidth] = useState(600);
   const [height, setHeight] = useState(300);
   const [symbol, setSymbol] = useState('AMGN'); // Default symbol
+  const [startDate, setStartDate] = useState(new Date()); // Default start date
+  const [endDate, setEndDate] = useState(new Date()); // Default end date
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/graph/${symbol}`);
+      const response = await axios.get(`http://localhost:5000/api/graph/${symbol}`, {
+        params: {
+          startDate: startDate.toISOString().split('T')[0],
+          endDate: endDate.toISOString().split('T')[0]
+        }
+      });
       setData(response.data);
     } catch (error) {
       setError(error.message);
     }
-  }, [symbol]);
+  }, [symbol, startDate, endDate]);
 
   useEffect(() => {
-    fetchData(); // Initial fetch
-    const interval = setInterval(fetchData, 60000);
+    const fetchDataAndUpdate = async () => {
+      await fetchData();
+    };
+
+    fetchDataAndUpdate(); // Initial fetch
+
+    const interval = setInterval(fetchDataAndUpdate, 60000); // Fetch every minute
+
     return () => clearInterval(interval);
   }, [fetchData]);
 
@@ -46,8 +62,12 @@ const OldGraph = () => {
 
     const formatDollar = (value) => `$${value.toFixed(2)}`;
 
+    // Display the latest date in the chart title
+    const latestDate = data.Date[data.Date.length - 1]; // Assuming data.Date is sorted in ascending order
+
     return (
       <div>
+        <h2>Old Stock Graph - {latestDate}</h2>
         <LineChart width={width} height={height} data={chartData}>
           <XAxis dataKey="Date" />
           <YAxis tickFormatter={formatDollar} />
@@ -63,26 +83,50 @@ const OldGraph = () => {
     );
   };
 
+  const generateBIReport = async () => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/graph/report/${symbol}`, {
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0]
+      }, {
+        responseType: 'blob' // Ensure response is treated as a blob
+      });
+
+      const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
+      saveAs(blob, `${symbol}_BI_Report.xlsx`);
+    } catch (error) {
+      console.error('Failed to generate BI report:', error);
+    }
+  };
+
+  // Define handleDownload function
+  const handleDownload = generateBIReport;
+
   return (
     <div>
-      <h2>Old Stock Graph</h2>
       <div>
         <label>Select Stock Symbol:</label>
         <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
-              <option value="AMGN">AMGN</option>
-              <option value="AAPL">AAPL</option>
-              <option value="GOOGL">GOOGL</option>
-              <option value="MSFT">MSFT</option>
-              <option value="TSLA">TSLA</option>
-              <option value="NFLX">NFLX</option>
-              <option value="NVDA">NVDA</option>
-              {/* Add more options as needed */}
-            </select>
-
+          <option value="AMGN">AMGN</option>
+          <option value="AAPL">AAPL</option>
+          <option value="GOOGL">GOOGL</option>
+          <option value="MSFT">MSFT</option>
+          <option value="TSLA">TSLA</option>
+          <option value="NFLX">NFLX</option>
+          <option value="NVDA">NVDA</option>
+          {/* Add more options as needed */}
+        </select>
+      </div>
+      <div>
+        <label>Start Date:</label>
+        <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} />
+        <label>End Date:</label>
+        <DatePicker selected={endDate} onChange={(date) => setEndDate(date)} />
       </div>
       <button onClick={() => setShowDiff(!showDiff)}>
         {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
       </button>
+      <button onClick={handleDownload}>Generate BI Report</button>
       <div className="resizable-container">
         {renderGraph()}
       </div>
