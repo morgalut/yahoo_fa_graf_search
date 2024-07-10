@@ -33,18 +33,28 @@ const SearchBar = ({ setStockData }) => {
     };
 
     return (
-        <div>
+        <div className="relative w-full max-w-lg">
             <input
                 type="text"
                 value={query}
                 onChange={handleInputChange}
                 placeholder="Search for stocks..."
+                className="w-full p-2 border border-gray-300 rounded"
             />
-            <button onClick={() => handleSearch(query)}>Search</button>
+            <button
+                onClick={() => handleSearch(query)}
+                className="absolute right-0 top-0 p-2 bg-blue-500 text-white rounded-r"
+            >
+                Search
+            </button>
             {suggestions.length > 0 && (
-                <ul>
+                <ul className="absolute left-0 right-0 bg-white border border-gray-300 mt-1 max-h-48 overflow-y-auto">
                     {suggestions.map((suggestion, index) => (
-                        <li key={`${suggestion.symbol}-${index}`} onClick={() => handleSearch(suggestion.symbol)}>
+                        <li
+                            key={`${suggestion.symbol}-${index}`}
+                            onClick={() => handleSearch(suggestion.symbol)}
+                            className="p-2 cursor-pointer hover:bg-gray-200"
+                        >
                             {suggestion.symbol} - {suggestion.name}
                         </li>
                     ))}
