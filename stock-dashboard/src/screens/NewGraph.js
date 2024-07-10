@@ -1,18 +1,17 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import './ResizableContainer.css';
 import { saveAs } from 'file-saver';
 
-const OldGraph = () => {
+const NewGraph = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [showDiff, setShowDiff] = useState(false);
   const [width, setWidth] = useState(600);
   const [height, setHeight] = useState(300);
-  const [symbol, setSymbol] = useState('AMGN'); // Default symbol
+  const [symbol, setSymbol] = useState('AAPL'); // Default symbol
   const [startDate, setStartDate] = useState(new Date()); // Default start date
   const [endDate, setEndDate] = useState(new Date()); // Default end date
 
@@ -43,12 +42,12 @@ const OldGraph = () => {
   }, [fetchData]);
 
   if (error) {
-    return <div>Error fetching data: {error}</div>;
+    return <div className="text-red-500">Error fetching data: {error}</div>;
   }
 
   const renderGraph = () => {
     if (!data) {
-      return <div>Loading...</div>;
+      return <div className="text-center">Loading...</div>;
     }
 
     const chartData = data.Date.map((date, index) => ({
@@ -62,22 +61,20 @@ const OldGraph = () => {
 
     const formatDollar = (value) => `$${value.toFixed(2)}`;
 
-    // Display the latest date in the chart title
     const latestDate = data.Date[data.Date.length - 1]; // Assuming data.Date is sorted in ascending order
 
     return (
-      <div>
-        <h2>Old Stock Graph - {latestDate}</h2>
-        <LineChart width={width} height={height} data={chartData}>
+      <div className="animate-fadeIn">
+        <h2 className="text-2xl font-bold mb-4 text-primary">New Stock Graph - {latestDate}</h2>
+        <LineChart width={width} height={height} data={chartData} className="mx-auto">
           <XAxis dataKey="Date" />
           <YAxis tickFormatter={formatDollar} />
           <Tooltip formatter={(value) => formatDollar(value)} />
-          <CartesianGrid stroke="#f5f5f5" />
+          <CartesianGrid stroke="#333" />
           <Line type="monotone" dataKey="Close" stroke="#ff7300" />
           <Line type="monotone" dataKey="Open" stroke="#00ff00" />
           <Line type="monotone" dataKey="High" stroke="#0000ff" />
           <Line type="monotone" dataKey="Low" stroke="#ff0000" />
-          <Line type="monotone" dataKey="Volume" stroke="#000000" />
         </LineChart>
       </div>
     );
@@ -89,7 +86,7 @@ const OldGraph = () => {
         startDate: startDate.toISOString().split('T')[0],
         endDate: endDate.toISOString().split('T')[0]
       }, {
-        responseType: 'blob' // Ensure response is treated as a blob
+        responseType: 'blob'
       });
 
       const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
@@ -99,14 +96,15 @@ const OldGraph = () => {
     }
   };
 
-  // Define handleDownload function
-  const handleDownload = generateBIReport;
-
   return (
-    <div>
-      <div>
-        <label>Select Stock Symbol:</label>
-        <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
+    <div className="p-4 bg-dark-card rounded-lg shadow-lg">
+      <div className="mb-4">
+        <label className="block mb-2">Select Stock Symbol:</label>
+        <select
+          value={symbol}
+          onChange={(e) => setSymbol(e.target.value)}
+          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+        >
           <option value="AMGN">AMGN</option>
           <option value="AAPL">AAPL</option>
           <option value="GOOGL">GOOGL</option>
@@ -114,42 +112,59 @@ const OldGraph = () => {
           <option value="TSLA">TSLA</option>
           <option value="NFLX">NFLX</option>
           <option value="NVDA">NVDA</option>
-          {/* Add more options as needed */}
         </select>
       </div>
-      <div>
-        <label>Start Date:</label>
-        <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} />
-        <label>End Date:</label>
-        <DatePicker selected={endDate} onChange={(date) => setEndDate(date)} />
+      <div className="mb-4">
+        <label className="block mb-2">Start Date:</label>
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+        />
+        <label className="block mb-2 mt-4">End Date:</label>
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+        />
       </div>
-      <button onClick={() => setShowDiff(!showDiff)}>
+      <button
+        onClick={() => setShowDiff(!showDiff)}
+        className="bg-blue-500 text-white py-2 px-4 rounded-md mb-4 hover:bg-blue-600 transition duration-300"
+      >
         {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
       </button>
-      <button onClick={handleDownload}>Generate BI Report</button>
-      <div className="resizable-container">
+      <button
+        onClick={generateBIReport}
+        className="bg-green-500 text-white py-2 px-4 rounded-md mb-4 ml-2 hover:bg-green-600 transition duration-300"
+      >
+        Generate BI Report
+      </button>
+      <div className="resizable-container mb-4">
         {renderGraph()}
       </div>
-      <div className="controls">
-        <label>
+      {/* <div className="controls mb-4">
+        <label className="block mb-2">
           Width:
           <input
             type="number"
             value={width}
             onChange={(e) => setWidth(parseInt(e.target.value, 10))}
+            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
           />
         </label>
-        <label>
+        <label className="block mb-2 mt-4">
           Height:
           <input
             type="number"
             value={height}
             onChange={(e) => setHeight(parseInt(e.target.value, 10))}
+            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
           />
         </label>
-      </div>
+      </div> */}
     </div>
   );
 };
 
-export default OldGraph;
+export default NewGraph;
