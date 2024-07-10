@@ -5,6 +5,7 @@ import StockGraph from './components/Graph/StockGraph';
 import Loader from './components/Loader';
 import Footer from './components/Footer'; // Import Footer component
 import './styles/App.css';
+import './styles/pop.css';
 
 const App = () => {
   const [stockData, setStockData] = useState(null);

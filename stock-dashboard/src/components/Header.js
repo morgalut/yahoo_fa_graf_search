@@ -3,12 +3,30 @@ import React, { useState } from 'react';
 import SearchBar from './SearchBar';
 import Offcanvas from './Offcanvas';
 import StockInfo from './StockInfo';
+import Popover from './Popover';
 
 const Header = () => {
     const [isOffcanvasOpen, setOffcanvasOpen] = useState(false);
     const [stockData, setStockData] = useState(null);
+    const [popovers, setPopovers] = useState([]);
 
     const handleSetStockData = (data) => {
+        setStockData(data);
+        setOffcanvasOpen(true);
+    };
+
+    const handleOffcanvasClose = () => {
+        if (stockData && !popovers.some(popover => popover.symbol === stockData.symbol)) {
+            setPopovers([...popovers, { symbol: stockData.symbol, data: stockData }]);
+        }
+        setOffcanvasOpen(false);
+    };
+
+    const handlePopoverClose = (index) => {
+        setPopovers(popovers.filter((_, i) => i !== index));
+    };
+
+    const handlePopoverClick = (data) => {
         setStockData(data);
         setOffcanvasOpen(true);
     };
@@ -37,9 +55,18 @@ const Header = () => {
                     </nav>
                 </div>
             </header>
-            <Offcanvas isOpen={isOffcanvasOpen} onClose={() => setOffcanvasOpen(false)}>
+            <Offcanvas isOpen={isOffcanvasOpen} onClose={handleOffcanvasClose}>
                 {stockData ? <StockInfo data={stockData} /> : <p>No data available. Please enter a valid stock symbol.</p>}
             </Offcanvas>
+            {popovers.map((popover, index) => (
+                <Popover 
+                    key={index} 
+                    stockName={popover.symbol} 
+                    position={index} 
+                    onClose={() => handlePopoverClose(index)} 
+                    onClick={() => handlePopoverClick(popover.data)} 
+                />
+            ))}
         </>
     );
 };
