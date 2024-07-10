@@ -4,21 +4,22 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { saveAs } from 'file-saver';
+import Loader from '../components/Loader';
 
 const OldGraph = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
   const [showDiff, setShowDiff] = useState(false);
   const [width, setWidth] = useState(600);
   const [height, setHeight] = useState(300);
-  const [symbol, setSymbol] = useState('AMGN'); // Default symbol
-  const [startDate, setStartDate] = useState(new Date()); // Default start date
-  const [endDate, setEndDate] = useState(new Date()); // Default end date
+  const [symbol, setSymbol] = useState('AMGN');
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
 
   const fetchData = useCallback(async () => {
     try {
-      setLoading(true); // Set loading to true before fetching
+      setLoading(true);
       const response = await axios.get(`http://localhost:5000/api/graph/${symbol}`, {
         params: {
           startDate: startDate.toISOString().split('T')[0],
@@ -29,7 +30,7 @@ const OldGraph = () => {
     } catch (error) {
       setError(error.message);
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      setLoading(false);
     }
   }, [symbol, startDate, endDate]);
 
@@ -38,9 +39,8 @@ const OldGraph = () => {
       await fetchData();
     };
 
-    fetchDataAndUpdate(); // Initial fetch
-
-    const interval = setInterval(fetchDataAndUpdate, 60000); // Fetch every minute
+    fetchDataAndUpdate();
+    const interval = setInterval(fetchDataAndUpdate, 60000);
 
     return () => clearInterval(interval);
   }, [fetchData]);
@@ -51,11 +51,11 @@ const OldGraph = () => {
 
   const renderGraph = () => {
     if (loading) {
-      return <div className="text-center">Loading...</div>; // Display loading message
+      return null;
     }
 
     if (!data) {
-      return <div className="text-center">No data available</div>; // Display no data message if needed
+      return <div className="text-center">No data available</div>;
     }
 
     const chartData = data.Date.map((date, index) => ({
@@ -69,7 +69,7 @@ const OldGraph = () => {
 
     const formatDollar = (value) => `$${value.toFixed(2)}`;
 
-    const latestDate = data.Date[data.Date.length - 1]; // Assuming data.Date is sorted in ascending order
+    const latestDate = data.Date[data.Date.length - 1];
 
     return (
       <div className="animate-fadeIn">
@@ -107,71 +107,54 @@ const OldGraph = () => {
 
   return (
     <div className="p-4 bg-dark-card rounded-lg shadow-lg">
-      <div className="mb-4">
-        <label className="block mb-2">Select Stock Symbol:</label>
-        <select
-          value={symbol}
-          onChange={(e) => setSymbol(e.target.value)}
-          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+      {loading && <Loader />}
+      <div className={loading ? "blur-sm pointer-events-none" : ""}>
+        <div className="mb-4">
+          <label className="block mb-2">Select Stock Symbol:</label>
+          <select
+            value={symbol}
+            onChange={(e) => setSymbol(e.target.value)}
+            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+          >
+            <option value="AMGN">AMGN</option>
+            <option value="AAPL">AAPL</option>
+            <option value="GOOGL">GOOGL</option>
+            <option value="MSFT">MSFT</option>
+            <option value="TSLA">TSLA</option>
+            <option value="NFLX">NFLX</option>
+            <option value="NVDA">NVDA</option>
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block mb-2">Start Date:</label>
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+          />
+          <label className="block mb-2 mt-4">End Date:</label>
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+          />
+        </div>
+        <button
+          onClick={() => setShowDiff(!showDiff)}
+          className="bg-blue-500 text-white py-2 px-4 rounded-md mb-4 hover:bg-blue-600 transition duration-300"
         >
-          <option value="AMGN">AMGN</option>
-          <option value="AAPL">AAPL</option>
-          <option value="GOOGL">GOOGL</option>
-          <option value="MSFT">MSFT</option>
-          <option value="TSLA">TSLA</option>
-          <option value="NFLX">NFLX</option>
-          <option value="NVDA">NVDA</option>
-        </select>
+          {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
+        </button>
+        <button
+          onClick={generateBIReport}
+          className="bg-green-500 text-white py-2 px-4 rounded-md mb-4 ml-2 hover:bg-green-600 transition duration-300"
+        >
+          Generate BI Report
+        </button>
+        <div className="resizable-container mb-4">
+          {renderGraph()}
+        </div>
       </div>
-      <div className="mb-4">
-        <label className="block mb-2">Start Date:</label>
-        <DatePicker
-          selected={startDate}
-          onChange={(date) => setStartDate(date)}
-          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-        />
-        <label className="block mb-2 mt-4">End Date:</label>
-        <DatePicker
-          selected={endDate}
-          onChange={(date) => setEndDate(date)}
-          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-        />
-      </div>
-      <button
-        onClick={() => setShowDiff(!showDiff)}
-        className="bg-blue-500 text-white py-2 px-4 rounded-md mb-4 hover:bg-blue-600 transition duration-300"
-      >
-        {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
-      </button>
-      <button
-        onClick={generateBIReport}
-        className="bg-green-500 text-white py-2 px-4 rounded-md mb-4 ml-2 hover:bg-green-600 transition duration-300"
-      >
-        Generate BI Report
-      </button>
-      <div className="resizable-container mb-4">
-        {renderGraph()}
-      </div>
-      {/* <div className="controls mb-4">
-        <label className="block mb-2">
-          Width:
-          <input
-            type="number"
-            value={width}
-            onChange={(e) => setWidth(parseInt(e.target.value, 10))}
-            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-          />
-        </label>
-        <label className="block mb-2 mt-4">
-          Height:
-          <input
-            type="number"
-            value={height}
-            onChange={(e) => setHeight(parseInt(e.target.value, 10))}
-            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-          />
-        </label>
-      </div> */}
     </div>
   );
 };
