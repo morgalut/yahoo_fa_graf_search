@@ -40,3 +40,5 @@
   filter: blur(5px);
   pointer-events: none; /* Prevent interaction with blurred content */
 }
+
+

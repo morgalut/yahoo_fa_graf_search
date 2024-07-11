@@ -4,6 +4,7 @@ certifi==2024.6.2
 charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
+et-xmlfile==1.1.0
 Flask==3.0.3
 Flask-Cors==4.0.1
 frozendict==2.4.4
@@ -15,6 +16,7 @@ lxml==5.2.2
 MarkupSafe==2.1.5
 multitasking==0.0.11
 numpy==1.26.4
+openpyxl==3.1.5
 packaging==24.1
 pandas==2.2.2
 peewee==3.17.5

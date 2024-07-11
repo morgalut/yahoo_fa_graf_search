@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { saveAs } from 'file-saver';
 import Loader from '../components/Loader';
+import '../styles/Button.css'; // Make sure to import your CSS file
 
 const OldGraph = () => {
   const [data, setData] = useState(null);
@@ -141,13 +142,13 @@ const OldGraph = () => {
         </div>
         <button
           onClick={() => setShowDiff(!showDiff)}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md mb-4 hover:bg-blue-600 transition duration-300"
+          className="button-blue mb-4"
         >
           {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
         </button>
         <button
           onClick={generateBIReport}
-          className="bg-green-500 text-white py-2 px-4 rounded-md mb-4 ml-2 hover:bg-green-600 transition duration-300"
+          className="button-green mb-4 ml-2"
         >
           Generate BI Report
         </button>
