@@ -5,16 +5,20 @@ const SearchBar = ({ setStockData }) => {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
 
-    const handleInputChange = async (e) => {
-        const value = e.target.value;
-        setQuery(value);
-        if (value.length > 1) {
-            try {
-                const response = await axios.get(`http://localhost:5000/api/stock/search?q=${value}`);
-                setSuggestions(response.data);
-            } catch (error) {
-                console.error('Error fetching suggestions:', error);
-            }
+    const fetchSuggestions = async (input) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/suggestions/${input}`);
+            setSuggestions(response.data);
+        } catch (error) {
+            console.error('Error fetching suggestions:', error);
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const input = e.target.value;
+        setQuery(input);
+        if (input.length > 1) {
+            fetchSuggestions(input);
         } else {
             setSuggestions([]);
         }
