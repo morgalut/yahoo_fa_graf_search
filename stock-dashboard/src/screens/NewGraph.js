@@ -48,7 +48,7 @@ const NewGraph = () => {
 
   const renderGraph = () => {
     if (!data) {
-      return <div className="text-center">Loading...</div>;
+      return <div className="text-center">No data available.</div>;
     }
 
     const chartData = data.Date.map((date, index) => ({

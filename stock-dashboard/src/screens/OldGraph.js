@@ -4,13 +4,11 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { saveAs } from 'file-saver';
-import Loader from '../components/Loader';
 import '../styles/Button.css'; // Make sure to import your CSS file
 
 const OldGraph = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [showDiff, setShowDiff] = useState(false);
   const [width, setWidth] = useState(600);
   const [height, setHeight] = useState(300);
@@ -20,7 +18,6 @@ const OldGraph = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await axios.get(`http://localhost:5000/api/graph/${symbol}`, {
         params: {
           startDate: startDate.toISOString().split('T')[0],
@@ -30,8 +27,6 @@ const OldGraph = () => {
       setData(response.data);
     } catch (error) {
       setError(error.message);
-    } finally {
-      setLoading(false);
     }
   }, [symbol, startDate, endDate]);
 
@@ -51,10 +46,6 @@ const OldGraph = () => {
   }
 
   const renderGraph = () => {
-    if (loading) {
-      return null;
-    }
-
     if (!data) {
       return <div className="text-center">No data available</div>;
     }
@@ -108,53 +99,50 @@ const OldGraph = () => {
 
   return (
     <div className="p-4 bg-dark-card rounded-lg shadow-lg">
-      {loading && <Loader />}
-      <div className={loading ? "blur-sm pointer-events-none" : ""}>
-        <div className="mb-4">
-          <label className="block mb-2">Select Stock Symbol:</label>
-          <select
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value)}
-            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-          >
-            <option value="AMGN">AMGN</option>
-            <option value="AAPL">AAPL</option>
-            <option value="GOOGL">GOOGL</option>
-            <option value="MSFT">MSFT</option>
-            <option value="TSLA">TSLA</option>
-            <option value="NFLX">NFLX</option>
-            <option value="NVDA">NVDA</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2">Start Date:</label>
-          <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-          />
-          <label className="block mb-2 mt-4">End Date:</label>
-          <DatePicker
-            selected={endDate}
-            onChange={(date) => setEndDate(date)}
-            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-          />
-        </div>
-        <button
-          onClick={() => setShowDiff(!showDiff)}
-          className="button-blue mb-4"
+      <div className="mb-4">
+        <label className="block mb-2">Select Stock Symbol:</label>
+        <select
+          value={symbol}
+          onChange={(e) => setSymbol(e.target.value)}
+          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
         >
-          {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
-        </button>
-        <button
-          onClick={generateBIReport}
-          className="button-green mb-4 ml-2"
-        >
-          Generate BI Report
-        </button>
-        <div className="resizable-container mb-4">
-          {renderGraph()}
-        </div>
+          <option value="AMGN">AMGN</option>
+          <option value="AAPL">AAPL</option>
+          <option value="GOOGL">GOOGL</option>
+          <option value="MSFT">MSFT</option>
+          <option value="TSLA">TSLA</option>
+          <option value="NFLX">NFLX</option>
+          <option value="NVDA">NVDA</option>
+        </select>
+      </div>
+      <div className="mb-4">
+        <label className="block mb-2">Start Date:</label>
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+        />
+        <label className="block mb-2 mt-4">End Date:</label>
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+        />
+      </div>
+      <button
+        onClick={() => setShowDiff(!showDiff)}
+        className="button-blue mb-4"
+      >
+        {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
+      </button>
+      <button
+        onClick={generateBIReport}
+        className="button-green mb-4 ml-2"
+      >
+        Generate BI Report
+      </button>
+      <div className="resizable-container mb-4">
+        {renderGraph()}
       </div>
     </div>
   );
