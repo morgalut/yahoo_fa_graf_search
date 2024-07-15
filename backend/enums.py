@@ -9,3 +9,8 @@ class StockMarket(Enum):
 class DataSource(Enum):
     YAHOO_FINANCE = "Yahoo Finance"
     WIKIPEDIA = "Wikipedia"
+
+
+class NewsSource(Enum):
+    YAHOO_FINANCE = "Yahoo Finance"
+    GOOGLE_NEWS = "Google News"

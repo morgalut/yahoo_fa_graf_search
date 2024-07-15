@@ -1,14 +1,15 @@
+// App.js
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
-import StockInfo from './components/StockInfo';
-import StockGraph from './components/Graph/StockGraph';
-import Loader from './components/Loader';
-import Footer from './components/Footer';
-import Articles from './components/EducationalResources/Articles';
-import Tutorials from './components/EducationalResources/Tutorials';
-import Glossary from './components/EducationalResources/Glossary';
-import Videos from './components/EducationalResources/Videos';
+import Header from './new-folder/Header';
+import StockInfo from './new-folder/StockInfo';
+import StockGraph from './new-folder/Graph/StockGraph';
+import Loader from './new-folder/Loader';
+import Footer from './new-folder/Footer';
+import Articles from './new-folder/EducationalResources/Articles';
+import Tutorials from './new-folder/EducationalResources/Tutorials';
+import Glossary from './new-folder/EducationalResources/Glossary';
+import Videos from './new-folder/EducationalResources/Videos';
 import './styles/App.css';
 import './styles/pop.css';
 
