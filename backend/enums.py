@@ -14,3 +14,7 @@ class DataSource(Enum):
 class NewsSource(Enum):
     YAHOO_FINANCE = "Yahoo Finance"
     GOOGLE_NEWS = "Google News"
+
+class SearchMode(Enum):
+    SENTENCE = 1
+    WINDOW = 2

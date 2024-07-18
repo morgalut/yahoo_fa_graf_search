@@ -32,10 +32,15 @@ To run the Flask application, follow these steps:
    python app.py
 
 
-### Test
+### Test stock
 curl -X GET http://localhost:5000/api/stock/all_stocks
 curl -X GET http://localhost:5000/api/stock/AAPL
 curl -X GET "http://localhost:5000/api/stock/search?q=AAPL"
+
+### Test articles
+curl http://127.0.0.1:5000/api/edu/articles?source=google
+curl http://127.0.0.1:5000/api/edu/articles?source=yahoo
+curl http://127.0.0.1:5000/api/edu/articles?source=all
 
 
 # Dependencies
