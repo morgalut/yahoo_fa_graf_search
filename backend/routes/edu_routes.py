@@ -53,7 +53,7 @@ def get_cached_articles(stock_tickers, sources, page=1, limit=5):
 
 @edu_bp.route('/articles', methods=['GET'])
 def get_articles():
-    csv_file_path = 'C:/Users/Mor/Desktop/fina/Stocke_poke/yahoo_fa_graf_search/backend/csv_files/all_stocks.csv'
+    csv_file_path = 'csv_files/all_stocks.csv'
     stock_tickers = read_stock_tickers(csv_file_path)
 
     page = int(request.args.get('page', 1))
