@@ -4,6 +4,7 @@ import SearchBar from './SearchBar';
 import Offcanvas from './Offcanvas';
 import StockInfo from './StockInfo';
 import Popover from './Popover';
+import batstockLogo from './assets/batstock.png';
 
 const Header = () => {
     const [isOffcanvasOpen, setOffcanvasOpen] = useState(false);
@@ -51,8 +52,13 @@ const Header = () => {
                 <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <nav className="flex items-center justify-between h-16 lg:h-20">
                         <div className="flex items-center space-x-4">
-                            <Link to="/" className="text-2xl font-bold text-primary">Stock Dashboard</Link>
-                            <div className={`md:flex md:items-center md:space-x-10 ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+                            <Link to="/" className="text-xl font-bold text-primary flex items-center">
+                                <img src={batstockLogo} alt="BatStock logo" style={{ width: '63px', height: '33px', marginRight: '20px', marginTop: '5px' }} />
+                                BatStock
+                            </Link>
+                        </div>
+                        <div className="flex items-center justify-center flex-1">
+                            <div className="flex items-center space-x-10">
                                 <Link to="/articles" className="text-sm font-medium text-dark-text transition-all duration-200 lg:text-base hover:text-primary focus:text-primary"> Articles </Link>
                                 <Link to="/tutorials" className="text-sm font-medium text-dark-text transition-all duration-200 lg:text-base hover:text-primary focus:text-primary"> Tutorials </Link>
                                 <Link to="/glossary" className="text-sm font-medium text-dark-text transition-all duration-200 lg:text-base hover:text-primary focus:text-primary"> Glossary </Link>
