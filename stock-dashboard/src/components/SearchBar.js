@@ -38,26 +38,28 @@ const SearchBar = ({ setStockData }) => {
 
     return (
         <div className="relative w-full max-w-lg">
-            <input
-                type="text"
-                value={query}
-                onChange={handleInputChange}
-                placeholder="Search for stocks..."
-                className="w-full p-2 border border-gray-300 rounded"
-            />
-            <button
-                onClick={() => handleSearch(query)}
-                className="absolute right-0 top-0 p-2 bg-blue-500 text-white rounded-r"
-            >
-                Search
-            </button>
+            <div className="flex">
+                <input
+                    type="text"
+                    value={query}
+                    onChange={handleInputChange}
+                    placeholder="Search for stocks..."
+                    className="flex-grow p-2 border border-r-0 border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                />
+                <button
+                    onClick={() => handleSearch(query)}
+                    className="p-2 bg-primary text-white rounded-r-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                    Search
+                </button>
+            </div>
             {suggestions.length > 0 && (
-                <ul className="absolute left-0 right-0 bg-white border border-gray-300 mt-1 max-h-48 overflow-y-auto">
+                <ul className="absolute left-0 right-0 bg-white border border-gray-300 mt-1 max-h-48 overflow-y-auto rounded-md shadow-lg z-10">
                     {suggestions.map((suggestion, index) => (
                         <li
                             key={`${suggestion.symbol}-${index}`}
                             onClick={() => handleSearch(suggestion.symbol)}
-                            className="p-2 cursor-pointer hover:bg-gray-200"
+                            className="p-2 cursor-pointer hover:bg-gray-200 text-primary"
                         >
                             {suggestion.symbol} - {suggestion.name}
                         </li>
