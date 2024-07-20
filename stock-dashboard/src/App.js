@@ -43,7 +43,7 @@ const App = () => {
                         <Route path="/glossary" element={<Glossary />} />
                         <Route path="/videos" element={<Videos />} />
                     </Routes>
-                    <StockGraph setLoading={setLoading} />
+                    { <StockGraph setLoading={setLoading} /> }  
                 </div><br />
                 <Footer />
             </div>
