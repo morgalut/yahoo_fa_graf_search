@@ -2,17 +2,20 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { saveAs } from 'file-saver';
-import '../styles/Button.css'; // Make sure to import your CSS file
 
 const NewGraph = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [showDiff, setShowDiff] = useState(false);
+  const [width, setWidth] = useState(600);
+  const [height, setHeight] = useState(300);
   const [symbol, setSymbol] = useState('AAPL'); // Default symbol
   const [startDate, setStartDate] = useState(new Date()); // Default start date
   const [endDate, setEndDate] = useState(new Date()); // Default end date
+  const [suggestions, setSuggestions] = useState([]);
+  const [inputValue, setInputValue] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
@@ -40,13 +43,37 @@ const NewGraph = () => {
     return () => clearInterval(interval);
   }, [fetchData]);
 
+  const fetchSuggestions = async (input) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/suggestions/${input}`);
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+    if (e.target.value) {
+      fetchSuggestions(e.target.value);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSymbolSelect = (symbol) => {
+    setSymbol(symbol);
+    setInputValue('');
+    setSuggestions([]);
+  };
+
   if (error) {
     return <div className="text-red-500">Error fetching data: {error}</div>;
   }
 
   const renderGraph = () => {
     if (!data) {
-      return <div className="text-center">No data available.</div>;
+      return <div className="text-center">Loading...</div>;
     }
 
     const chartData = data.Date.map((date, index) => ({
@@ -65,20 +92,16 @@ const NewGraph = () => {
     return (
       <div className="animate-fadeIn">
         <h2 className="text-2xl font-bold mb-4 text-primary">New Stock Graph - {latestDate}</h2>
-        <div className="w-full h-96">
-          <ResponsiveContainer>
-            <LineChart data={chartData}>
-              <XAxis dataKey="Date" />
-              <YAxis tickFormatter={formatDollar} />
-              <Tooltip formatter={(value) => formatDollar(value)} />
-              <CartesianGrid stroke="#333" />
-              <Line type="monotone" dataKey="Close" stroke="#ff7300" />
-              <Line type="monotone" dataKey="Open" stroke="#00ff00" />
-              <Line type="monotone" dataKey="High" stroke="#0000ff" />
-              <Line type="monotone" dataKey="Low" stroke="#ff0000" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <LineChart width={width} height={height} data={chartData} className="mx-auto">
+          <XAxis dataKey="Date" />
+          <YAxis tickFormatter={formatDollar} />
+          <Tooltip formatter={(value) => formatDollar(value)} />
+          <CartesianGrid stroke="#333" />
+          <Line type="monotone" dataKey="Close" stroke="#ff7300" />
+          <Line type="monotone" dataKey="Open" stroke="#00ff00" />
+          <Line type="monotone" dataKey="High" stroke="#0000ff" />
+          <Line type="monotone" dataKey="Low" stroke="#ff0000" />
+        </LineChart>
       </div>
     );
   };
@@ -101,55 +124,78 @@ const NewGraph = () => {
 
   return (
     <div className="p-4 bg-dark-card rounded-lg shadow-lg">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
-        <div>
-          <label className="block mb-2">Select Stock Symbol:</label>
-          <select
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value)}
-            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-          >
-            <option value="AMGN">AMGN</option>
-            <option value="AAPL">AAPL</option>
-            <option value="GOOGL">GOOGL</option>
-            <option value="MSFT">MSFT</option>
-            <option value="TSLA">TSLA</option>
-            <option value="NFLX">NFLX</option>
-            <option value="NVDA">NVDA</option>
-          </select>
-        </div>
-        <div>
-          <label className="block mb-2">Start Date:</label>
-          <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-          />
-          <label className="block mb-2 mt-4">End Date:</label>
-          <DatePicker
-            selected={endDate}
-            onChange={(date) => setEndDate(date)}
-            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-          />
-        </div>
+      <div className="mb-4">
+        <label className="block mb-2">Select Stock Symbol:</label>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          placeholder="Type to search..."
+          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+        />
+        {inputValue && (
+          <ul className="bg-dark-bg text-dark-text rounded-md shadow-lg mt-2">
+            {suggestions.map((suggestion) => (
+              <li
+                key={suggestion.symbol}
+                onClick={() => handleSymbolSelect(suggestion.symbol)}
+                className="p-2 cursor-pointer hover:bg-dark-highlight"
+              >
+                {suggestion.symbol} - {suggestion.name}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      <div className="flex flex-col md:flex-row items-center mb-4">
-        <button
-          onClick={() => setShowDiff(!showDiff)}
-          className="button-blue mb-4 md:mb-0 md:mr-2 w-full md:w-auto"
-        >
-          {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
-        </button>
-        <button
-          onClick={generateBIReport}
-          className="button-green mb-4 md:mb-0 md:ml-2 w-full md:w-auto"
-        >
-          Generate BI Report
-        </button>
+      <div className="mb-4">
+        <label className="block mb-2">Start Date:</label>
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+        />
+        <label className="block mb-2 mt-4">End Date:</label>
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+        />
       </div>
+      <button
+        onClick={() => setShowDiff(!showDiff)}
+        className="bg-blue-500 text-white py-2 px-4 rounded-md mb-4 hover:bg-blue-600 transition duration-300"
+      >
+        {showDiff ? 'Show Actual Values' : 'Show Day Differences'}
+      </button>
+      <button
+        onClick={generateBIReport}
+        className="bg-green-500 text-white py-2 px-4 rounded-md mb-4 ml-2 hover:bg-green-600 transition duration-300"
+      >
+        Generate BI Report
+      </button>
       <div className="resizable-container mb-4">
         {renderGraph()}
       </div>
+      {/* <div className="controls mb-4">
+        <label className="block mb-2">
+          Width:
+          <input
+            type="number"
+            value={width}
+            onChange={(e) => setWidth(parseInt(e.target.value, 10))}
+            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+          />
+        </label>
+        <label className="block mb-2 mt-4">
+          Height:
+          <input
+            type="number"
+            value={height}
+            onChange={(e) => setHeight(parseInt(e.target.value, 10))}
+            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+          />
+        </label>
+      </div> */}
     </div>
   );
 };

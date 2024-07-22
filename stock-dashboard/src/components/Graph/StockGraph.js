@@ -1,9 +1,11 @@
+// StockGraph.jsx
 import React, { useState } from "react";
 import OldGraph from "../../screens/OldGraph";
 import NewGraph from "../../screens/NewGraph";
 import StockTimeline from "../../screens/StockTimeline";
 import SymbolOverview from "../../screens/SymbolOverview";
 import UsdIlsQuote from "../../screens/UsdIlsQuote";
+import TradingViewWidget from "../../screens/TradingViewWidget"; // Import the new widget
 import anime from "animejs";
 import "../../styles/StockGraph.css";
 import "../../styles/StockDashboard.css";
@@ -44,6 +46,22 @@ const StockGraph = () => {
         duration: 1000,
         easing: "easeInOutQuad",
       });
+    } else if (option === "tradingview") {
+      setShow("tradingview");
+      anime({
+        targets: ".graph-container",
+        opacity: [1, 0],
+        duration: 500,
+        easing: "easeInOutQuad",
+        complete: () => {
+          anime({
+            targets: ".graph-container",
+            opacity: [0, 1],
+            duration: 500,
+            easing: "easeInOutQuad",
+          });
+        },
+      });
     } else {
       setShow("first");
       anime({
@@ -73,6 +91,7 @@ const StockGraph = () => {
           <option value="first">Show the first graph</option>
           <option value="second">Show the second graph</option>
           <option value="both">Show both graphs</option>
+          {/* <option value="tradingview">Show TradingView Widget</option> Add new option */}
         </select>
       </div>
       <div className="graph-container">
@@ -94,6 +113,11 @@ const StockGraph = () => {
             <div className="new-graph">
               <NewGraph />
             </div>
+          </div>
+        )}
+        {show === "tradingview" && (
+          <div className="tradingview-graph">
+            <TradingViewWidget />
           </div>
         )}
       </div>

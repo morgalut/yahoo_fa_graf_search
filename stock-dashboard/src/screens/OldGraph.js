@@ -10,9 +10,36 @@ const OldGraph = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [showDiff, setShowDiff] = useState(false);
-  const [symbol, setSymbol] = useState('AMGN');
+  const [symbol, setSymbol] = useState('AAPL');
+  const [query, setQuery] = useState('AAPL');
+  const [suggestions, setSuggestions] = useState([]);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+
+  const fetchSuggestions = async (input) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/suggestions/${input}`);
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const input = e.target.value;
+    setQuery(input);
+    if (input.length > 1) {
+      fetchSuggestions(input);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSymbol(suggestion.symbol);
+    setQuery(suggestion.symbol);
+    setSuggestions([]);
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -104,19 +131,30 @@ const OldGraph = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block mb-2">Select Stock Symbol:</label>
-          <select
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value)}
-            className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
-          >
-            <option value="AMGN">AMGN</option>
-            <option value="AAPL">AAPL</option>
-            <option value="GOOGL">GOOGL</option>
-            <option value="MSFT">MSFT</option>
-            <option value="TSLA">TSLA</option>
-            <option value="NFLX">NFLX</option>
-            <option value="NVDA">NVDA</option>
-          </select>
+          <div className="relative w-full max-w-lg">
+            <div className="flex">
+              <input
+                type="text"
+                value={query}
+                onChange={handleInputChange}
+                className="block w-full border border-gray-600 rounded-md p-2 bg-dark-bg text-dark-text"
+                placeholder="Type stock symbol..."
+              />
+            </div>
+            {suggestions.length > 0 && (
+              <ul className="absolute z-10 w-full bg-dark-bg border border-gray-600 rounded-md mt-1">
+                {suggestions.map((suggestion) => (
+                  <li
+                    key={suggestion.symbol}
+                    className="p-2 cursor-pointer hover:bg-gray-700"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion.symbol} - {suggestion.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
         <div>
           <label className="block mb-2">Start Date:</label>

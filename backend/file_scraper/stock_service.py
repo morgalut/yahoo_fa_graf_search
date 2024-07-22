@@ -45,7 +45,7 @@ def load_all_stocks():
     """
     global ALL_STOCKS
     ALL_STOCKS = []
-    with open('csv_files/stocks.csv', newline='', encoding='utf-8') as csvfile:
+    with open('csv_files/all_stocks_new.csv', newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             ALL_STOCKS.append({
