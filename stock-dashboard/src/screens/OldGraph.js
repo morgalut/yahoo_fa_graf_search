@@ -4,7 +4,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { saveAs } from 'file-saver';
-import Loader from '../components/Loader';
 
 const OldGraph = () => {
   const [data, setData] = useState(null);

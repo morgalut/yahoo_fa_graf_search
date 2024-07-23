@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import NewsComponent from '../../new-folder/NewsComponent';
 
 const Articles = () => {
     const [articles, setArticles] = useState([]);
     const [page, setPage] = useState(1);
-    const [limit] = useState(10);
+    const [limit] = useState(5); // Show 5 articles initially
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [totalArticles, setTotalArticles] = useState(0);
@@ -15,6 +16,7 @@ const Articles = () => {
             params: { page, limit, query }
         })
             .then(response => {
+                console.log("Fetched articles:", response.data.articles);
                 setArticles(prevArticles => (page === 1 ? response.data.articles : [...prevArticles, ...response.data.articles]));
                 setTotalArticles(response.data.total_articles);
                 setPage(page);
@@ -63,8 +65,8 @@ const Articles = () => {
                                 </a>
                             }
                             <h2>{article.title}</h2>
-                            <p>{article.description}</p>
-                            <p>Names mentioned: {article.names ? article.names.join(', ') : 'None'}</p>
+                            <p>{article.description || 'No description available'}</p>
+                            <p>Names mentioned: {article.names && article.names.length > 0 ? article.names.join(', ') : 'None'}</p>
                             <p>
                                 <a href={article.url} target="_blank" rel="noopener noreferrer" style={{ color: 'blue', textDecoration: 'underline' }}>
                                     Read more
@@ -73,6 +75,7 @@ const Articles = () => {
                         </div>
                     </li>
                 ))}
+                <NewsComponent />
             </ul>
             {loading && <p>Loading...</p>}
             {articles.length < totalArticles && <button onClick={loadMoreArticles} disabled={loading}>Load More</button>}

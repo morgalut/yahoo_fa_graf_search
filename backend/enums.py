@@ -1,5 +1,5 @@
- 
-# C:\Users\Mor\Desktop\fina\Stocke_poke\backend\enums.py
+# C:\Users\Mor\Desktop\fina\Stocke_poke\yahoo_fa_graf_search\backend\enums.py
+
 from enum import Enum
 
 class StockMarket(Enum):
@@ -7,12 +7,9 @@ class StockMarket(Enum):
     TASE = "TA-125"
 
 class DataSource(Enum):
-    YAHOO_FINANCE = "Yahoo Finance"
     WIKIPEDIA = "Wikipedia"
 
-
 class NewsSource(Enum):
-    YAHOO_FINANCE = "Yahoo Finance"
     GOOGLE_NEWS = "Google News"
 
 class SearchMode(Enum):
